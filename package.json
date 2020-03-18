@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "env-cmd nodemon --exec babel-node -- ./index.js",
-    "start": "node index.js"
+    "dev": "env-cmd nodemon --exec babel-node -- dist/index.js",
+    "start": "node dist/index.js",
+    "build": "babel src --out-dir dist"
   },
   "author": "Ollie Cee",
   "license": "ISC",

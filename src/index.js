@@ -1,4 +1,6 @@
 // Imports
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
 import express from 'express';
 import cors from 'cors';
 
@@ -24,7 +26,6 @@ const corsOptions = {
 app.use(cors())
 
 // Routes
-app.get('/', (req, res) => res.send('Health check'))
 app.get('/summoner/:summoner_name', getSummonerStats)
 
 // Launching the service
