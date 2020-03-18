@@ -1,0 +1,97 @@
+html, body {
+    color: #fff;
+}
+
+h1 {
+    font-size: 20px;
+}
+
+.search-container {
+    text-align: center;
+    background: #5383e8;
+    padding: 30px 0;
+    flex-flow: column;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.search-result {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #555;
+}
+
+.search-container > h1 {
+    margin-bottom: 15px;
+}
+
+.summoner-search > input {
+    border-radius: 5px;
+    outline: none;
+    border: none;
+    font-size: 1.4em;
+    padding: 10px;
+    width: 100%;
+}
+
+.summoner-search > button {
+    width: 100%;
+    padding: 10px;
+    background: #f2f2f2;
+    border: none;
+    margin-top: 15px;
+    color: #5383e8;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Summoner Results / Stats */
+.summoner-results {
+    margin-top: 30px;
+}
+
+.summoner-results > .summoner-stats:last-child {
+    margin-bottom: 0
+}
+
+.summoner-stats {
+    display: flex;
+    margin-bottom: 15px;
+    font-weight: bold;
+    padding: 15px;
+    width: 100%;
+    height: 150px;
+    background: black;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.champion {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    background-color: black;
+    background-size: cover;
+}
+
+.champion_items {
+    width: calc(27px * 3);
+    height: calc(27px * 3);
+    flex-shrink: 0;
+    flex-flow: wrap;
+    display: flex
+}
+
+.box {
+    width: 25px;
+    height: 25px;
+    background: rgba(0,0,0,.3);
+    margin: 1px;
+    background-size: cover;
+    border-radius: 3px;
+}

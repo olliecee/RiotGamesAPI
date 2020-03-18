@@ -1,0 +1,297 @@
+    <html>
+    <head>
+        <title>Ollie Cee Project - React</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+        <link rel="stylesheet" type="text/css" href="./style.css"/>
+    </head>
+    <body>
+        <div id="root"></div>
+
+        <!-- Development -->
+        <!-- <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+        <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script> -->
+
+        <!-- Production -->
+        <script crossorigin src="https://unpkg.com/react@16/umd/react.production.min.js"></script>
+        <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.production.min.js"></script>
+        <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+        <script type="text/babel">
+            // Constants
+            const riot_version = '10.6.1';
+
+            // Context
+            const globalState = {
+                searchNetwork: {
+                    loading: false,
+                    error: false,
+                    success: false
+                },
+                // State
+                matches: [],
+                // Handlers
+                onSubmitSearch: async (summoner_name) => {}
+            };
+
+            const LeagueOfLegendsUser = React.createContext(globalState);
+
+            // Entry point
+            ReactDOM.render(
+                <LeagueOfLegendsProvider>
+                    <App/>
+                </LeagueOfLegendsProvider>, 
+                document.getElementById('root')
+            );
+
+            // Network requests
+            async function getChampionList() {
+                return new Promise(resolve => {
+                    setTimeout(async () => {
+                        result = await fetch(`http://ddragon.leagueoflegends.com/cdn/${riot_version}/data/en_US/champion.json`);
+                        result = await result.json();
+                        result = Object.values(result.data);
+
+                        resolve(result);
+
+                        var result;
+                    }, 2500) // Artificial delay to enjoy the spinner
+                })
+            }
+
+            async function getSummonerSpells() {
+                result = await fetch('http://ddragon.leagueoflegends.com/cdn/10.6.1/data/en_US/summoner.json');
+                result = await result.json();
+                result = Object.values(result.data);
+
+                return result;
+
+                var result;
+            }
+
+            async function getMatchesBySummonerName(summoner_name) {
+                try {
+                    if (!summoner_name) {
+                        throw new Error('You require a summoner_name to get match details')
+                    }
+
+                    result = await fetch('http://localhost:3000/summoner/' + summoner_name);
+                    result = await result.json();
+
+                    return result
+                } catch (err) {
+                    throw new Error(err)
+                }
+
+                var result;
+            }
+
+            // Providers
+            function LeagueOfLegendsProvider({ children }) {
+                const [state, setState] = React.useState(globalState);
+
+                const customDispatch = {
+                    onSubmitSearch: async (summoner_name) => {
+                        try {
+                            if (!summoner_name) {
+                                throw new Error('User did not submit a summoner_name');
+                            }
+
+                            setState({
+                                ...state,
+                                searchNetwork: {
+                                    ...globalState.searchNetwork,
+                                    loading: true
+                                }
+                            });
+                            const matches = await getMatchesBySummonerName(summoner_name);
+                            setState({
+                                ...state,
+                                matches,
+                                searchNetwork: {
+                                    ...globalState.searchNetwork,
+                                    success: true
+                                }
+                            })
+                        } catch (err) {
+                            setState({
+                                ...state,
+                                searchNetwork: {
+                                    ...globalState.searchNetwork,
+                                    error: true
+                                }
+                            })
+                        }
+                    }
+                };
+
+                return (
+                    <LeagueOfLegendsUser.Provider value={{
+                        ...state,
+                        ...customDispatch
+                    }}>
+                        {children}
+                    </LeagueOfLegendsUser.Provider>
+                )
+            }
+
+            // Main
+            function App() {
+                const [network, setNetwork] = React.useState({
+                    loading: true,
+                    success: false,
+                    error: false
+                });
+                const { searchNetwork, matches } = React.useContext(LeagueOfLegendsUser);
+
+                React.useEffect(() => {
+                    fetchOnMount();
+                }, []);
+
+                async function fetchOnMount() {
+                    try {
+                        const [champions, summoner_spells] = await Promise.all([
+                            getChampionList(),
+                            getSummonerSpells()
+                        ]);
+
+                        // LocalStorage seems like a good alternative/option, memory is faster than disk and this app isn't huge
+                        window.champions = new Map();
+                        window.summoner_spells = new Map();
+
+                        champions.forEach(({ image, key, id }) => {
+                            window.champions.set(key, { name: id, image })
+                        });
+                        summoner_spells.forEach(({ image, key }) => {
+                            window.summoner_spells.set(key, image)
+                        });
+
+                        setNetwork({
+                            loading: false,
+                            success: true,
+                            error: false
+                        })
+                    } catch (err) {
+                        setNetwork({
+                            loading: false,
+                            success: false,
+                            error: true
+                        })
+                    }
+                }
+
+                return (
+                    <div>
+                        <div className="search-container">
+                            <div className="container">
+                                <div className="row">
+                                    <div className="col-md-6 offset-md-3 col-12">
+                                        {network.loading ? (
+                                            <div className="d-flex justify-content-center align-items-center flex-column">
+                                                <i className="fa fa-spin fa-spinner fa-4x mb-4"/>
+                                                <h1>Loading champion data from LoL-DragonTail version {riot_version}</h1>
+                                            </div>
+                                        ) : network.error ? (
+                                            <h1>Failed to load champion data</h1>
+                                        ) : (
+                                            <React.Fragment>
+                                                <h1>Enter a League of Legends summoner name</h1>
+                                                <SummonerSearchBar/>
+                                            </React.Fragment>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="search-result">
+                            {searchNetwork.loading ? (
+                                <i className="fa fa-spin fa-spinner fa-4x mt-5" />
+                            ) : (
+                                <SummonerMatches>
+                                    {matches.map(match => <SummonerMatch key={match.id} {...match} />)}
+                                </SummonerMatches>
+                            )}
+                        </div>
+                    </div>
+                )
+            }
+
+            function SummonerSearchBar() {
+                const [search, setSearch] = React.useState('');
+                const { searchNetwork, onSubmitSearch } = React.useContext(LeagueOfLegendsUser);
+
+                const onChange = (event) => {
+                    setSearch(event.target.value)
+                };
+
+                const onSubmit = async () => {
+                    await onSubmitSearch(search);
+                };
+
+                return (
+                    <div className="summoner-search">
+                        <input value={search} onChange={onChange} />
+                        <button
+                            onClick={onSubmit}
+                            disabled={searchNetwork.loading}
+                        >
+                            {
+                                searchNetwork.loading ? 'Searching..' :
+                                searchNetwork.error ? 'Oops, try again later' : 'Search'
+                            }
+                        </button>
+                    </div>
+                )
+            }
+
+            function SummonerMatches({ children }) {
+                return (
+                    <div className="summoner-results container">
+                        <div className="row">
+                            {children}
+                        </div>
+                    </div>
+                )
+            }
+
+            function SummonerMatch(stats) {
+                const minutes = Math.floor(stats.game_duration / 60);
+                const seconds = stats.game_duration % 60;
+                const champion_name = window.champions.get(String(stats.champion_name)).name;
+
+                return (
+                    <div className="summoner-stats col-md-8 offset-md-2 col-12" style={{ background: stats.victory ? '#a3cfec' : '#e2b6b3' }}>
+                        <div>
+                            {stats.victory ? <div style={{ color: '#1a78ae' }}>Victory</div> : <div style={{ color: '#c6443e' }}>Defeat</div>}
+                            <div>{minutes}m {seconds}s</div>
+                        </div>
+                        <div className="d-flex flex-column align-items-center">
+                            <div className="d-flex">
+                                <div className="champion" style={{ backgroundImage: `url(http://ddragon.leagueoflegends.com/cdn/${riot_version}/img/champion/${champion_name}.png)` }} />
+                                <div>
+                                    {stats.summoner_spells.map(item => {
+                                        const summoner_spell = window.summoner_spells.get(String(item)).full;
+                                        return (
+                                            <div key={item} className="box" style={{ backgroundImage: `url(http://ddragon.leagueoflegends.com/cdn/${riot_version}/img/spell/${summoner_spell})` }} />
+                                        )
+                                    })}
+                                </div>
+                            </div>
+                            <div>{champion_name}</div>
+                        </div>
+                        <div className="d-flex align-items-center flex-column">
+                            <div>{stats.score_kills} / <span style={{ color: 'red' }}>{stats.score_deaths}</span> / {stats.score_assists}</div>
+                            <div>{stats.score_deaths === 0 ? 'Perfect' : ((stats.score_kills + stats.score_assists) / stats.score_deaths) + ':1'} KDA</div>
+                        </div>
+                        <div className="d-flex flex-column align-items-center">
+                            <div>Level{stats.champion_level}</div>
+                            <div>{stats.score_creep} ({stats.score_creep_per_min}) CS</div>
+                        </div>
+                        <div className="champion_items">{stats.champion_items.map((item, idx) => <div key={idx} className="box" style={item ? { backgroundImage: `url(http://ddragon.leagueoflegends.com/cdn/${riot_version}/img/item/${item}.png)` } : {}}/>)}</div>
+                    </div>
+                )
+            }
+        </script>
+    </body>
+</html>

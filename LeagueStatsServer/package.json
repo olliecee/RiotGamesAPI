@@ -1,0 +1,25 @@
+{
+  "name": "leaguestatsserver",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "env-cmd nodemon --exec babel-node -- ./index.js",
+    "deploy": "node index.js"
+  },
+  "author": "Ollie Cee",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "cors": "^2.8.5",
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.8.7",
+    "@babel/node": "^7.8.7",
+    "@babel/preset-env": "^7.8.7",
+    "env-cmd": "^10.1.0",
+    "nodemon": "^2.0.2"
+  }
+}
