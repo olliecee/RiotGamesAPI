@@ -12,7 +12,7 @@ const port = process.env.PORT;
 const whitelist = ['localhost', 'localhost:3000', 'https://olliecee.com'];
 
 // Middlewares
-app.use(cors({ whitelist }));
+// app.use(cors({ whitelist }));
 
 // Routes
 app.get('/', (req, res) => res.send('Hello'));
