@@ -21,7 +21,7 @@ const corsOptions = {
 }
 
 // Middleware
-app.use(cors(corsOptions))
+app.use(cors())
 
 // Routes
 app.get('/summoner/:summoner_name', getSummonerStats)
