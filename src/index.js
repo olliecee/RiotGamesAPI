@@ -11,7 +11,7 @@ const app = express()
 const port = process.env.PORT;
 
 // Settings
-const whitelist = ['http://localhost', 'https://olliecee.com']
+const whitelist = ['localhost', 'https://olliecee.com']
 const corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
@@ -26,6 +26,7 @@ const corsOptions = {
 app.use(cors())
 
 // Routes
+app.get('/asd', (req, res) => res.send('Hello'))
 app.get('/summoner/:summoner_name', getSummonerStats)
 
 // Launching the service
