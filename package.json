@@ -7,7 +7,6 @@
     "local": "env-cmd nodemon --exec babel-node -- src/index.js",
     "start": "node dist/index.js",
     "build": "babel src --out-dir dist",
-    "heroku-prebuild": "process.env.RIOT_HOST",
     "heroku-postbuild": "npm run build"
   },
   "author": "Ollie Cee",
