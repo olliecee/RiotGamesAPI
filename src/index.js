@@ -26,7 +26,7 @@ const corsOptions = {
 app.use(cors())
 
 // Routes
-app.get('/asd', (req, res) => res.send('Hello'))
+app.get('/', (req, res) => res.send('Hello'))
 app.get('/summoner/:summoner_name', getSummonerStats)
 
 // Launching the service
