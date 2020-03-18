@@ -5,7 +5,6 @@ export default ({ whitelist: origins }) => {
         if (origins.length === 0) throw new Error('Whitelist parameter is empty');
 
         if ('host' in req.headers) {
-            console.log(origins, req.headers.host)
             const isValid = origins.indexOf(req.headers.host) !== -1;
             if (isValid) {
                 next()
